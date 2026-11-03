@@ -1,6 +1,6 @@
 # 01 · Sector playbooks
 
-Sector is the first wizard question because it sets palette logic, density, trust signals, imagery and the exceptions to the house rules. Three sectors are grounded in the founder's own taste; collectibles is provisional (its one build was client-directed); two more are provisional until a build exists.
+Sector is the first wizard question because it sets palette logic, density, trust signals, imagery and the exceptions to the house rules. Any business fits: the grounded sectors have their own playbooks, G and H cover general retail and automotive provisionally, and X ("something else") borrows the closest playbook. Three sectors are grounded in the founder's own taste; collectibles is provisional (its one build was client-directed); two more are provisional until a build exists.
 
 Each playbook: **Feel · Palette · Type · Density · Imagery · Trust · Exceptions granted · Forbidden here · Language · Accepted reference · Rejected**.
 
@@ -86,6 +86,28 @@ Each playbook: **Feel · Palette · Type · Density · Imagery · Trust · Excep
 - **Trust**: registrations, accreditations, named practitioners with credentials, reviews pulled from a verifiable source only.
 - **Forbidden here**: stock photography, "book now" pill buttons, icon grids of services.
 - To be grounded with the first clinic customer.
+
+## G. General e-commerce (provisional)
+
+- **Feel**: a serious shop. House rules apply in full; density high; prices, stock and delivery visible without a click.
+- **Palette**: paper and near-black ink; one signature from the logo. No marketplace-blue, no sale-red everywhere.
+- **Type**: refined grotesk per 00. **Density**: high. **Imagery**: product photography on neutral ground; placeholders until the shoot.
+- **Trust**: delivery promise, returns in one line, payment marks, real reviews only if pulled from a verifiable source.
+- **Forbidden here**: countdown timers, "sale" badges on every tile, pill filters, carousel heroes.
+- Ground with the first general-retail customer.
+
+## H. Automotive, vehicles and parts (provisional)
+
+- **Feel**: authority and specification. Think a good dealer's stock list, not a classified-ads site.
+- **Palette**: near-black ink on paper or a deep dark ground where the brand is premium; one signature. No racing stripes, no checkered-flag motifs.
+- **Type**: refined grotesk; tabular figures for specs, mileage, prices. **Density**: high (stock grid with year, mileage, price, fuel). **Imagery**: photography carries it: three-quarter front, consistent angle and background across the stock.
+- **Trust**: stock numbers, history checks, warranty, finance terms stated plainly, physical address and hours.
+- **Forbidden here**: stock-photo cars, angled "speed" shapes, gradients, oversized headings.
+- Ground with the first automotive customer.
+
+## X. Something else
+
+When no sector fits, the owner describes the business in Stage 1 (start.sells). The engine then: applies the house rules in full; chooses the closest playbook for density and trust signals (a catalogue → G; a service → F; a single hero product → B; a technical product → D); and notes in the brief which playbook it borrowed and why. Three directions are generated as usual. After the first accepted build in a new category, that category earns its own provisional playbook here.
 
 ---
 

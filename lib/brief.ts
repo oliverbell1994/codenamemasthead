@@ -6,7 +6,7 @@ export type Product = { name: string; variant: string; price: string };
 
 export type Brief = {
   meta: { slug: string; created: string; blind_test: boolean; attribution: "founder" | "client" | "mixed" };
-  start: { sells: string; sector: "" | "A" | "B" | "C" | "D" | "E" | "F"; regions: string; replacing_site: string; goal_6_months: string };
+  start: { sells: string; sector: string; regions: string; replacing_site: string; goal_6_months: string };
   defaults: { light_or_dark: string; density: string; imagery_mode: string };
   brand: {
     name: string; wordmark_exact: string; logo_file: string; logo_locked: boolean;
@@ -25,6 +25,9 @@ export const SECTORS: Record<string, { title: string; note: string; light: strin
   D: { title: "Crypto / AI products", note: "Clean, tier-1, few strong sections, no neon.", light: "dark", density: "low", imagery: "screenshots" },
   E: { title: "Wellness / supplements, multi-product", note: "Calm, credible, warm neutrals.", light: "light", density: "medium", imagery: "photography" },
   F: { title: "Clinics and service businesses", note: "Calm authority, real premises and people.", light: "light", density: "low", imagery: "photography" },
+  G: { title: "General e-commerce", note: "Any catalogue of products: dense grid, clear prices, trust up front.", light: "light", density: "high", imagery: "photography" },
+  H: { title: "Automotive, vehicles and parts", note: "Stock, specs and prices with authority; photography carries it.", light: "light", density: "high", imagery: "photography" },
+  X: { title: "Something else", note: "Describe it in your own words; the engine works from the house rules and the closest playbook.", light: "light", density: "medium", imagery: "photography" },
 };
 
 export function emptyBrief(): Brief {

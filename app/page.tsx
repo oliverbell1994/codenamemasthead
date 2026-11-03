@@ -61,7 +61,7 @@ export default function Studio() {
       <div className="panes">
         <section className={"pane" + (tab === "chat" ? " show" : "")}>
           <div className="pane-h"><span>Conversation</span><span className="meta">one question at a time</span></div>
-          {loaded && <Conversation brief={brief} messages={messages} model={converseModel} onBrief={setBrief} onMessages={setMessages} onAsking={setAsking} onComplete={setComplete} />}
+          {loaded && <Conversation brief={brief} messages={messages} model={converseModel} onBrief={setBrief} onMessages={setMessages} onAsking={setAsking} onComplete={setComplete} onGoPreview={() => setTab("preview")} />}
         </section>
         <section className={"pane" + (tab === "brief" ? " show" : "")}>
           <div className="pane-h"><span>Brief</span><span className="meta">edit anything, any time</span></div>

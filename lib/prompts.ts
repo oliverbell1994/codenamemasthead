@@ -27,7 +27,7 @@ Always call the tool "respond" exactly once with:
 FIELD PATHS AND TYPES
 ${FIELDS.map((f) => `- ${f.path} · ${f.type}${f.required ? " · required" : ""}${f.options ? " · one of " + f.options.join("/") : ""} · ${f.label}`).join("\n")}
 
-SECTORS (for start.sector): ${Object.entries(SECTORS).map(([k, v]) => `${k} = ${v.title}`).join("; ")}
+SECTORS (for start.sector): ${Object.entries(SECTORS).map(([k, v]) => `${k} = ${v.title}`).join("; ")}. Any business fits: if none of A–H matches, use X and keep the owner's own description in start.sells.
 
 CURRENT BRIEF (JSON): ${JSON.stringify(brief)}
 MISSING REQUIRED: ${missing}

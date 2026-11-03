@@ -9,7 +9,7 @@ Rules for the wizard UI: propose a default for anything the sector implies; neve
 ## Stage 1 · Start (five questions, two minutes)
 
 1. **What do you sell, and to whom?** Free text, one line. → Seeds everything.
-2. **Which sector is closest?** Pick one of A–F from 01, with a one-line description each. → Sets palette logic, density, exceptions and the forbidden list. Source: every sector decision above was made differently per site.
+2. **Which sector is closest?** Pick one of A–H from 01, or X "something else" with a description, with a one-line description each. → Sets palette logic, density, exceptions and the forbidden list. Source: every sector decision above was made differently per site.
 3. **Where do you sell, and in which currencies?** Countries, currency per region. Default: owner's country only. → Regions, delivery, tax, hreflang. Source: Buyuk's /eu /us /ca shops; Peptidarium's per-country language copies.
 4. **New site, or replacing one that already ranks?** If replacing: the URL. → Triggers URL preservation and the 301 map. Source: "existing URLs must never be replaced".
 5. **What must this site achieve in six months?** Orders / enquiries / rankings / all three, plus a number if they have one. → Decides whether SEO structure leads or the store leads. Source: Peptidarium brief ("SEO is the main point and should drive everything").
