@@ -1,0 +1,58 @@
+# Masthead wizard answers — template. /wizard fills this; you can also fill it by hand.
+# Every field must be present. Leave "" if unanswered. Question numbers refer to engine/skills/02-wizard-questions.md.
+
+meta:
+  slug: ""
+  created: ""
+  wizard_version: 0.2
+  blind_test: false
+  attribution: founder        # founder | client | mixed
+
+start:                        # Stage 1
+  sells: ""                   # Q1  what you sell, to whom (one line)
+  sector: ""                  # Q2  A research-supplies | B beauty | C collectibles | D crypto-ai | E wellness | F clinic-services
+  regions:                    # Q3
+    - country: "United Kingdom"
+      currency: "GBP"
+  replacing_site: ""          # Q4  URL of the site being replaced, or ""
+  goal_6_months: ""           # Q5  orders | enquiries | rankings | all, plus a number if known
+
+brand:                        # Stage 2
+  name: ""                    # the brand name
+  wordmark_exact: ""          # Q7  exactly as written, capitals and spacing
+  logo_file: ""               # Q6  path to the logo file, or ""
+  logo_locked: true           # Q6
+  references_admire:          # Q8  three URLs, one word each
+    - { url: "", why: "" }
+    - { url: "", why: "" }
+    - { url: "", why: "" }
+  references_dislike:         # Q8
+    - { url: "", why: "" }
+    - { url: "", why: "" }
+    - { url: "", why: "" }
+  colours_must: []            # Q9  hex or names that must appear
+  colours_never: []           # Q9
+  words_never_site: []        # Q10 never anywhere on the site
+  words_never_titles: []      # Q10 never in page titles (may appear in body)
+  light_or_dark: "default"    # Q11 default | light | dark
+  imagery_mode: "default"     # Q12 default | photography | renders | illustration
+  imagery_now: false          # Q12 do you have imagery now?
+  tone_like: []               # Q13 three words
+  tone_never: []              # Q13 three words
+  must_differ_from: []        # Q14 URLs of your own sites this must look nothing like
+
+catalogue:                    # used by /directions for real content
+  currency: "GBP"
+  delivery_promise: ""        # e.g. "Next-day UK delivery, free"
+  trust_facts: []             # e.g. "Certificate of analysis with every batch", "Dispatched by Royal Mail Tracked 24"
+  groups:
+    - name: ""
+      products:
+        - { name: "", variant: "", price: "" }
+
+protect:                      # Stage 6 (defaults used in a blind test)
+  locked_regions: ["hero", "product page", "checkout"]   # Q41, applies once converting
+  approver: ""                # Q42 who approves designs
+  dispatcher: ""              # Q42 who handles dispatch
+  password_until_real_imagery: true   # Q40
+  never_do: []                # Q43 one line each, verbatim

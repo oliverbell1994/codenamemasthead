@@ -1,0 +1,12 @@
+{
+  "_comment": "Banned copy phrases for tools/gate.py, matched case-insensitively in visible text. Source: engine/skills/00-house-rules.md §7.",
+  "banned": [
+    "welcome to", "elevate your", "elevate", "unlock", "seamless", "empower", "discover the power",
+    "your journey", "next-level", "next level", "revolutionise", "revolutionize", "cutting-edge", "cutting edge",
+    "game-changing", "game changing", "state-of-the-art", "world-class", "best-in-class", "unleash",
+    "supercharge", "effortless", "in today's fast-paced", "look no further", "we've got you covered"
+  ],
+  "warn": [
+    "premium", "luxury", "innovative", "solutions", "experience the", "crafted", "curated"
+  ]
+}

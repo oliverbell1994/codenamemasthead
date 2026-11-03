@@ -1,0 +1,27 @@
+{
+  "_comment": "Curated and banned font families for tools/gate.py. Names are matched case-insensitively against font-family declarations. Edit this file, not the linter. Source: engine/skills/00-house-rules.md §2.",
+  "curated_free": [
+    "Hanken Grotesk", "Instrument Sans", "Host Grotesk", "Schibsted Grotesk",
+    "Public Sans", "Work Sans", "Albert Sans", "Onest"
+  ],
+  "curated_commercial": [
+    "Söhne", "Sohne", "Neue Haas Grotesk", "Suisse Int'l", "Suisse Intl", "ABC Diatype", "GT America",
+    "Aeonik", "Founders Grotesk", "PP Neue Montreal", "Neue Montreal", "Basis Grotesque",
+    "Untitled Sans", "National 2", "Graphik"
+  ],
+  "serif_granted_only": [
+    "Newsreader", "Source Serif 4", "Source Serif", "GT Sectra", "Tiempos", "Signifier", "Editorial New", "Canela"
+  ],
+  "mono_data_only": [
+    "JetBrains Mono", "IBM Plex Mono", "Berkeley Mono", "DejaVu Sans Mono"
+  ],
+  "generic_allowed": [
+    "system-ui", "sans-serif", "serif", "monospace", "ui-sans-serif", "ui-serif", "ui-monospace",
+    "-apple-system", "BlinkMacSystemFont", "Segoe UI", "Roboto", "Helvetica Neue", "Helvetica", "Arial"
+  ],
+  "banned_as_default": [
+    "Inter", "Geist", "Bricolage Grotesque", "Space Grotesk", "Manrope", "Plus Jakarta Sans", "DM Sans",
+    "Outfit", "Poppins", "Montserrat", "Figtree", "Sora", "Urbanist", "Lexend",
+    "Playfair Display", "Instrument Serif", "Fraunces", "DM Serif Display", "DM Serif Text", "Cormorant", "Cormorant Garamond"
+  ]
+}

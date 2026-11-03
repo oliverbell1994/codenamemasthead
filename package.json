@@ -1,0 +1,14 @@
+{
+  "name": "masthead-engine",
+  "version": "0.2.0",
+  "private": true,
+  "description": "Masthead engine — Phase 0: wizard, brief, three directions, gate, score",
+  "scripts": {
+    "gate": "python3 tools/gate.py",
+    "shots": "node tools/screenshot.js",
+    "setup": "npm install && npx playwright install chromium"
+  },
+  "dependencies": {
+    "playwright": "^1.47.0"
+  }
+}
