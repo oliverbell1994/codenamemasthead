@@ -41,3 +41,7 @@ Slugs are lowercase with hyphens. Everything for a brand lives under `brands/<sl
 ## What is deliberately not here yet
 
 The customer-facing app, billing, hosting, the commerce backend, Stages 3–5 of the wizard, the full build. Phase 0 is directions only. The base storefront template comes after the first sector passes.
+
+## The web wizard
+
+`wizard/index.html` is the customer-facing version of Stages 1, 2, 6 and the catalogue: one question per screen, sector defaults proposed and overridable, and `answers.yaml` produced at the end to paste into `brands/<slug>/`. Open it in any browser; no server needed. Progress is kept in that browser only.

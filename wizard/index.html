@@ -1,0 +1,378 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Masthead Wizard</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@500;600&family=Instrument+Sans:wght@400;500;600&display=swap">
+<style>
+  /* Layout: one question per screen, left-aligned on a 640px measure; stage rail above, actions below. House rules: square corners, hairline rules, grotesk type, one signature colour. */
+  :root{
+    --paper:#ffffff; --panel:#eef2f7; --ink:#14202e; --ink-2:#4b5563; --ink-3:#8a94a3;
+    --rule:rgba(20,32,46,.14); --sig:#1f3a63; --sig-ink:#ffffff; --warn:#8a5a1f; --ok:#2f4a3b;
+    --display:"Hanken Grotesk","Helvetica Neue",Arial,sans-serif;
+    --body:"Instrument Sans","Helvetica Neue",Arial,sans-serif;
+  }
+  @media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){ --paper:#121820; --panel:#1a2230; --ink:#eef2f7; --ink-2:#b3bcc9; --ink-3:#7d8794; --rule:rgba(238,242,247,.16); --sig:#9db7dc; --sig-ink:#121820; --warn:#d9a85c; --ok:#9fc3ad; color-scheme:dark } }
+  :root[data-theme="dark"]{ --paper:#121820; --panel:#1a2230; --ink:#eef2f7; --ink-2:#b3bcc9; --ink-3:#7d8794; --rule:rgba(238,242,247,.16); --sig:#9db7dc; --sig-ink:#121820; --warn:#d9a85c; --ok:#9fc3ad; color-scheme:dark }
+
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--body);font-size:16px;line-height:1.55;-webkit-font-smoothing:antialiased}
+  .wrap{max-width:720px;margin:0 auto;padding-block:0 48px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+  header{border-bottom:1px solid var(--rule)}
+  header .wrap{display:flex;justify-content:space-between;align-items:center;height:60px;padding-block:0}
+  .brand{font-family:var(--display);font-weight:600;letter-spacing:-.01em}
+  .brand small{font-family:var(--body);font-weight:400;color:var(--ink-3);margin-left:10px;font-size:13px}
+  .rail{display:flex;gap:0;border-bottom:1px solid var(--rule);margin-bottom:40px}
+  .rail div{flex:1;padding:12px 0 10px;font-size:11px;letter-spacing:.12em;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-3);border-bottom:2px solid transparent;margin-bottom:-1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .rail div.on{color:var(--ink);border-bottom-color:var(--sig)}
+  .rail div.done{color:var(--ink-2)}
+  .q{min-height:48vh}
+  .num{font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--sig);font-weight:600;margin-bottom:12px}
+  h1{font-family:var(--display);font-weight:600;font-size:clamp(26px,3.4vw,36px);line-height:1.12;letter-spacing:-.015em;margin:0 0 10px;text-wrap:balance}
+  .help{color:var(--ink-2);margin:0 0 22px;max-width:60ch}
+  .help code{font-family:var(--body);background:var(--panel);padding:0 5px}
+  label.lbl{display:block;font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-2);margin:14px 0 6px;font-weight:600}
+  input[type=text],textarea,select{width:100%;font:inherit;color:var(--ink);background:var(--paper);border:1px solid var(--rule);border-radius:0;padding:12px 14px;outline:none}
+  input[type=text]:focus,textarea:focus,select:focus{border-color:var(--sig)}
+  textarea{min-height:110px;resize:vertical}
+  .row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+  .row3{display:grid;grid-template-columns:2fr 1fr 1fr;gap:12px}
+  @media(max-width:560px){.row,.row3{grid-template-columns:1fr} .rail div{font-size:10px;letter-spacing:.06em}}
+  .choices{display:grid;gap:0;border-top:1px solid var(--rule)}
+  .choice{display:grid;grid-template-columns:28px 1fr;gap:12px;padding:14px 4px;border-bottom:1px solid var(--rule);cursor:pointer;align-items:start}
+  .choice:hover{background:var(--panel)}
+  .choice .k{font-family:var(--display);font-weight:600;color:var(--ink-3)}
+  .choice.sel .k{color:var(--sig)}
+  .choice.sel{background:var(--panel)}
+  .choice b{display:block;font-weight:600}
+  .choice span{color:var(--ink-2);font-size:14px}
+  .pair{display:flex;gap:0;border:1px solid var(--rule)}
+  .pair button{flex:1;background:none;border:0;border-right:1px solid var(--rule);padding:12px;font:inherit;color:var(--ink);cursor:pointer}
+  .pair button:last-child{border-right:0}
+  .pair button.sel{background:var(--sig);color:var(--sig-ink)}
+  .tags{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+  .tag{border:1px solid var(--rule);padding:4px 8px;font-size:14px;display:inline-flex;gap:8px;align-items:center}
+  .tag button{border:0;background:none;color:var(--ink-3);cursor:pointer;font:inherit;padding:0}
+  .defaults{border:1px solid var(--rule);padding:16px 18px;margin-bottom:8px;background:var(--panel)}
+  .defaults .d{display:grid;grid-template-columns:140px 1fr auto;gap:12px;align-items:center;padding:8px 0;border-bottom:1px solid var(--rule)}
+  .defaults .d:last-child{border-bottom:0}
+  @media(max-width:560px){.defaults .d{grid-template-columns:1fr;gap:4px}}
+  .defaults .d b{font-size:13px}
+  .defaults .d small{color:var(--ink-2)}
+  .actions{display:flex;justify-content:space-between;align-items:center;border-top:1px solid var(--rule);padding-top:18px;margin-top:28px;gap:12px}
+  .btn{font:inherit;font-weight:500;border:1px solid var(--ink);background:var(--ink);color:var(--paper);padding:12px 22px;cursor:pointer;border-radius:0}
+  .btn.ghost{background:none;color:var(--ink);border-color:var(--rule)}
+  .btn:focus-visible,.choice:focus-visible{outline:2px solid var(--sig);outline-offset:2px}
+  .hint{font-size:13px;color:var(--ink-3)}
+  .err{color:var(--warn);font-size:14px;margin-top:8px}
+  .mini{display:flex;gap:8px;align-items:center;margin-top:8px}
+  .mini button{font:inherit;font-size:14px;border:1px solid var(--rule);background:none;color:var(--ink);padding:6px 10px;cursor:pointer}
+  .rows .r{display:grid;grid-template-columns:2fr 1fr 1fr 32px;gap:8px;margin-bottom:8px;align-items:center}
+  @media(max-width:560px){.rows .r{grid-template-columns:1fr 1fr;} .rows .r input:first-child{grid-column:1/-1}}
+  .rows .r button{border:1px solid var(--rule);background:none;color:var(--ink-3);height:44px;cursor:pointer}
+  .summary{border-top:1px solid var(--ink)}
+  .summary .s{display:grid;grid-template-columns:160px 1fr;gap:12px;padding:10px 0;border-bottom:1px solid var(--rule);font-size:15px}
+  .summary .s b{font-weight:600;color:var(--ink-2);font-size:12px;letter-spacing:.08em;text-transform:uppercase;padding-top:3px}
+  @media(max-width:560px){.summary .s{grid-template-columns:1fr;gap:2px}}
+  pre{font:13px/1.5 ui-monospace,"DejaVu Sans Mono",Menlo,monospace;background:var(--panel);border:1px solid var(--rule);padding:14px;overflow:auto;max-height:360px;white-space:pre;margin:0}
+  .intro p{max-width:60ch}
+  .check{display:flex;gap:10px;align-items:center;margin:18px 0;font-size:15px}
+  .check input{width:18px;height:18px;margin:0}
+  .toast{position:fixed;left:50%;bottom:max(20px,env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--ink);color:var(--paper);padding:10px 16px;font-size:14px;opacity:0;transition:opacity .2s}
+  .toast.on{opacity:1}
+  @media(prefers-reduced-motion:reduce){.toast{transition:none}}
+</style>
+</head>
+<body>
+
+
+<header><div class="wrap"><div class="brand">Masthead <small>wizard · v0.2</small></div><div class="hint" id="pos"></div></div></header>
+<main class="wrap">
+  <div class="rail" id="rail"></div>
+  <div class="q" id="q"></div>
+  <div class="actions" id="actions"></div>
+</main>
+<div class="toast" id="toast"></div>
+
+<script>
+(function(){
+  // ---------- state ----------
+  const SECTORS = [
+    ['A','Research supplies / peptides','Light, clinical, dense shop. Certificates, purity, dispatch named.'],
+    ['B','Beauty / skincare, single product','Monochrome, photography-led, ingredient as the claim.'],
+    ['C','Collectibles / trading cards','Product authority, near-black ink, no corporate blue.'],
+    ['D','Crypto / AI products','Clean, tier-1, few strong sections, no neon.'],
+    ['E','Wellness / supplements, multi-product','Calm, credible, warm neutrals. Provisional rules.'],
+    ['F','Clinics and service businesses','Calm authority, real premises and people. Provisional rules.'],
+  ];
+  const SECTOR_DEFAULTS = {
+    A:{light:'light', density:'high', imagery:'renders', why:'peptide businesses should not be dark themed; shops are dense; photographic vial renders'},
+    B:{light:'light', density:'medium', imagery:'photography', why:'black, white and greys with photography doing the work'},
+    C:{light:'light', density:'medium-high', imagery:'photography', why:'house rules apply; richer only inside a client lock'},
+    D:{light:'dark', density:'low', imagery:'screenshots', why:'few strong sections, product screenshots, no neon on dark'},
+    E:{light:'light', density:'medium', imagery:'photography', why:'warm neutrals, product on neutral ground'},
+    F:{light:'light', density:'low', imagery:'photography', why:'real premises and people, never stock'},
+  };
+  const empty = () => ({
+    meta:{slug:'', created:'', wizard_version:'0.2', blind_test:false, attribution:'founder'},
+    start:{sells:'', sector:'', regions:'United Kingdom, GBP', replacing_site:'', goal_6_months:''},
+    defaults:{light_or_dark:'default', density:'default', imagery_mode:'default'},
+    brand:{name:'', wordmark_exact:'', logo_file:'', logo_locked:true, admire:[['',''],['',''],['','']], dislike:[['',''],['',''],['','']],
+      colours_must:[], colours_never:[], words_never_site:[], words_never_titles:[], imagery_now:false, tone_like:[], tone_never:[], must_differ_from:[]},
+    catalogue:{currency:'GBP', delivery_promise:'', trust_facts:[], products:[['','',''],['','',''],['','',''],['','',''],['','',''],['','','']]},
+    protect:{locked_regions:['hero','product page','checkout'], approver:'', dispatcher:'', password_until_real_imagery:true, never_do:[]},
+  });
+  let A = empty();
+  try{ const s = localStorage.getItem('masthead-wizard'); if(s){ A = Object.assign(empty(), JSON.parse(s)); } }catch(e){}
+  const save = () => { try{ localStorage.setItem('masthead-wizard', JSON.stringify(A)); }catch(e){} };
+
+  // ---------- steps ----------
+  const steps = [];
+  const add = (stage, def) => steps.push(Object.assign({stage}, def));
+
+  add('Start', {kind:'intro'});
+  add('Start', {id:'sells', q:'What do you sell, and to whom?', help:'One line. Real products, real buyers.', get:()=>A.start.sells, set:v=>A.start.sells=v, type:'textarea', req:true, ph:'e.g. Research peptides and lab consumables to UK laboratories, online only'});
+  add('Start', {id:'sector', q:'Which sector is closest?', help:'This sets the palette logic, density, imagery and the forbidden list. Pick what your buyers would recognise, not what you identify with.', type:'sector', req:true});
+  add('Start', {id:'regions', q:'Where do you sell, and in which currencies?', help:'Countries and the currency for each.', get:()=>A.start.regions, set:v=>A.start.regions=v, type:'text', req:true});
+  add('Start', {id:'replacing', q:'Is this a new site, or does it replace one that already ranks?', help:'If it replaces one, paste the URL. Existing URLs are never replaced, only redirected.', get:()=>A.start.replacing_site, set:v=>A.start.replacing_site=v, type:'text', ph:'Leave empty for a new site'});
+  add('Start', {id:'goal', q:'What must this site achieve in six months?', help:'Orders, enquiries, rankings, or all three. Add a number if you have one.', get:()=>A.start.goal_6_months, set:v=>A.start.goal_6_months=v, type:'textarea', req:true, ph:'e.g. Page one for "buy peptides uk"; 150 orders a month'});
+  add('Start', {kind:'defaults', q:'Your sector sets three defaults', help:'Keep them or change them. The engine explains each.'});
+
+  add('Brand', {id:'name', q:'What is the brand called?', get:()=>A.brand.name, set:v=>{A.brand.name=v; if(!A.brand.wordmark_exact) A.brand.wordmark_exact=v;}, type:'text', req:true});
+  add('Brand', {id:'wordmark', q:'How exactly is the name written?', help:'Capitals, spacing, any mark. This spelling is enforced in copy, titles and schema.', get:()=>A.brand.wordmark_exact, set:v=>A.brand.wordmark_exact=v, type:'text', req:true, ph:'e.g. BuyUK Peptides'});
+  add('Brand', {id:'logo', q:'Do you have a logo, and is it locked?', help:'A locked logo is never redrawn, recoloured or suggested on. If it is on packaging, lock it.', type:'logo'});
+  add('Brand', {id:'admire', q:'Three sites you admire', help:'A URL and one word on why. The engine reads them for density, type and palette. It does not copy them.', type:'refs', key:'admire'});
+  add('Brand', {id:'dislike', q:"Three sites you can't stand", help:'Same again. Rejections are the most useful data the engine gets.', type:'refs', key:'dislike'});
+  add('Brand', {id:'colours', q:'Colours that must appear, and colours that must never appear', help:'Hex codes or names. Leave either empty if you have no rule.', type:'tags2', a:['colours_must','Must appear'], b:['colours_never','Must never appear']});
+  add('Brand', {id:'words', q:'Words that must never appear', help:'On the site at all, and separately in page titles (where a word may be fine in body text but not in the title).', type:'tags2', a:['words_never_site','Never on the site'], b:['words_never_titles','Never in page titles']});
+  add('Brand', {id:'imagery', q:'Do you have imagery now?', help:'If not, the engine places honest placeholders at the right proportions and real photography drops in later without a rebuild.', type:'yesno', get:()=>A.brand.imagery_now, set:v=>A.brand.imagery_now=v, yes:'Yes, I have photography or renders', no:'Not yet, place holders for a shoot'});
+  add('Brand', {id:'tone', q:'Tone: three words it should sound like, three it must never sound like', type:'tags2', a:['tone_like','Sounds like'], b:['tone_never','Never sounds like']});
+  add('Brand', {id:'differ', q:'Any site of your own this must look nothing like?', help:'URLs. The sameness check is strict against these.', type:'tags1', key:'must_differ_from', ph:'https://'});
+
+  add('Catalogue', {id:'delivery', q:'What is the delivery promise?', help:'Exactly as it should appear on the site.', get:()=>A.catalogue.delivery_promise, set:v=>A.catalogue.delivery_promise=v, type:'text', req:true, ph:'e.g. Next-day UK delivery, free on every order'});
+  add('Catalogue', {id:'trust', q:'Trust facts the site can state', help:'Specific and true. These replace adjectives.', type:'tags1', key:'trust_facts', root:'catalogue', ph:'e.g. Certificate of analysis with every batch'});
+  add('Catalogue', {id:'products', q:'Six to eight products, with prices', help:'Real names and prices in your currency. The directions use these, never placeholders.', type:'products'});
+
+  add('Protect', {id:'locked', q:'Which parts must never change without your explicit unlock?', help:'Default once a site is converting: hero, product page, checkout.', type:'tags1', key:'locked_regions', root:'protect'});
+  add('Protect', {id:'people', q:'Who approves designs, and who handles dispatch?', type:'people'});
+  add('Protect', {id:'password', q:'Keep the site behind a password until real imagery is in?', type:'yesno', get:()=>A.protect.password_until_real_imagery, set:v=>A.protect.password_until_real_imagery=v, yes:'Yes, password until it is real', no:'No, publish with placeholders'});
+  add('Protect', {id:'never', q:'Anything we should never do?', help:'One line each, in your words. These become hard rules for this site.', type:'tags1', key:'never_do', root:'protect', ph:'e.g. Never show prices in the hero'});
+
+  add('Done', {kind:'done'});
+
+  const STAGES = ['Start','Brand','Catalogue','Protect','Done'];
+  let i = 0;
+  const visible = s => !(A.meta.blind_test && s.stage==='Protect');
+
+  // ---------- helpers ----------
+  const el = (h) => { const t=document.createElement('template'); t.innerHTML=h.trim(); return t.content.firstElementChild; };
+  const esc = s => String(s==null?'':s).replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  const slugify = s => s.toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-+|-+$/g,'').slice(0,40);
+  const toast = m => { const t=document.getElementById('toast'); t.textContent=m; t.classList.add('on'); setTimeout(()=>t.classList.remove('on'),1800); };
+  function tagsUI(list, ph, onchange){
+    const box = el(`<div><div class="mini"><input type="text" placeholder="${esc(ph||'Type and press Enter')}" aria-label="Add"><button type="button">Add</button></div><div class="tags"></div></div>`);
+    const input = box.querySelector('input'), tags = box.querySelector('.tags');
+    const render = () => { tags.innerHTML=''; list.forEach((t,idx)=>{ const tg=el(`<span class="tag">${esc(t)}<button type="button" aria-label="Remove">×</button></span>`); tg.querySelector('button').onclick=()=>{list.splice(idx,1); render(); onchange&&onchange();}; tags.appendChild(tg); }); };
+    const addv = () => { const v=input.value.trim(); if(!v) return; list.push(v); input.value=''; render(); onchange&&onchange(); };
+    box.querySelector('button').onclick=addv; input.addEventListener('keydown',e=>{ if(e.key==='Enter'){ e.preventDefault(); addv(); } });
+    render(); return box;
+  }
+
+  // ---------- render ----------
+  function render(){
+    const s = steps[i];
+    const q = document.getElementById('q'); q.innerHTML='';
+    const rail = document.getElementById('rail'); rail.innerHTML='';
+    STAGES.forEach(st=>{ if(st==='Protect'&&A.meta.blind_test) return; const d=el(`<div>${st}</div>`); if(st===s.stage) d.classList.add('on'); else if(STAGES.indexOf(st)<STAGES.indexOf(s.stage)) d.classList.add('done'); rail.appendChild(d); });
+    const vis = steps.filter(visible); const n = vis.indexOf(s)+1;
+    document.getElementById('pos').textContent = s.kind?'' : `${n-1} of ${vis.length-2}`;
+
+    let next = 'Continue', showBack = i>0, err = el('<div class="err" hidden></div>');
+
+    if(s.kind==='intro'){
+      q.appendChild(el(`<div class="intro"><div class="num">Before the first pixel</div><h1>Forty questions, one at a time.</h1>
+        <p>Everything the engine needs to build a site it would not have to guess at. Answer like it is a real business you are about to open: real products, real prices, the sites you admire and the ones you never want to look like.</p>
+        <p>Nothing here asks what style you like. The engine shows you three rendered directions at the end instead, and you pick one.</p>
+        <label class="check"><input type="checkbox" id="blind" ${A.meta.blind_test?'checked':''}> This is a blind test (skips the Protect stage)</label>
+        <p class="hint">Progress is kept in this browser only.</p></div>`));
+      q.querySelector('#blind').onchange = e => { A.meta.blind_test = e.target.checked; save(); };
+      next = 'Start';
+    }
+    else if(s.kind==='defaults'){
+      const sec = A.start.sector, d = SECTOR_DEFAULTS[sec] || SECTOR_DEFAULTS.A;
+      q.appendChild(el(`<div><div class="num">Sector ${esc(sec)}</div><h1>${esc(s.q)}</h1><p class="help">${esc(d.why)}.</p></div>`));
+      const box = el('<div class="defaults"></div>');
+      const rowsDef = [
+        ['Light or dark', 'light_or_dark', d.light, ['light','dark']],
+        ['Density', 'density', d.density, ['low','medium','high']],
+        ['Imagery', 'imagery_mode', d.imagery, ['photography','renders','screenshots','illustration']],
+      ];
+      rowsDef.forEach(([label,key,def,opts])=>{
+        const cur = A.defaults[key]==='default' ? def : A.defaults[key];
+        const r = el(`<div class="d"><b>${label}</b><small>Proposed: ${esc(def)}</small><select aria-label="${label}"></select></div>`);
+        const sel = r.querySelector('select');
+        opts.concat(opts.includes(def)?[]:[def]).forEach(o=>{ const op=document.createElement('option'); op.value=o; op.textContent=o+(o===def?' (default)':''); if(o===cur) op.selected=true; sel.appendChild(op); });
+        sel.onchange = ()=>{ A.defaults[key] = sel.value===def ? 'default' : sel.value; save(); };
+        box.appendChild(r);
+      });
+      q.appendChild(box);
+      q.appendChild(el('<p class="hint">A change here is a site-level choice. It does not loosen the house rules.</p>'));
+    }
+    else if(s.kind==='done'){
+      if(!A.meta.slug) A.meta.slug = slugify(A.brand.name||'brand');
+      A.meta.created = new Date().toISOString().slice(0,10);
+      save();
+      const y = yaml();
+      q.appendChild(el(`<div><div class="num">Done</div><h1>Answers for ${esc(A.brand.wordmark_exact||A.brand.name)}</h1>
+        <p class="help">Copy this into <code>brands/${esc(A.meta.slug)}/answers.yaml</code> and run <code>/brief ${esc(A.meta.slug)}</code>. The engine writes the brief and then three directions.</p></div>`));
+      const sum = el('<div class="summary"></div>');
+      [['Sector', A.start.sector], ['Light or dark', A.defaults.light_or_dark], ['Density', A.defaults.density], ['Imagery', A.defaults.imagery_mode],
+       ['Locked', `logo ${A.brand.logo_locked?'locked':'may redraw'}; wordmark "${A.brand.wordmark_exact}"`],
+       ['Never', [...A.brand.colours_never, ...A.brand.words_never_site, ...A.brand.words_never_titles].join(', ')||'—'],
+       ['Must differ from', A.brand.must_differ_from.join(', ')||'—'],
+       ['Products', A.catalogue.products.filter(p=>p[0]).length]].forEach(([k,v])=>sum.appendChild(el(`<div class="s"><b>${esc(k)}</b><div>${esc(v)}</div></div>`)));
+      q.appendChild(sum);
+      const pre = el(`<pre id="yaml" style="margin-top:20px">${esc(y)}</pre>`); q.appendChild(pre);
+      const bar = el('<div class="mini"><button type="button" id="copy">Copy YAML</button><button type="button" id="reset">Start again</button></div>'); q.appendChild(bar);
+      bar.querySelector('#copy').onclick = () => { const t=yaml(); if(navigator.clipboard&&navigator.clipboard.writeText){ navigator.clipboard.writeText(t).then(()=>toast('Copied'),()=>{ selectPre(); toast('Select and copy'); }); } else { selectPre(); toast('Select and copy'); } };
+      bar.querySelector('#reset').onclick = () => { A = empty(); save(); i=0; render(); };
+      function selectPre(){ const r=document.createRange(); r.selectNodeContents(pre); const sel=window.getSelection(); sel.removeAllRanges(); sel.addRange(r); }
+      next = null;
+    }
+    else {
+      q.appendChild(el(`<div><div class="num">${esc(s.stage)} · ${n-1}</div><h1>${esc(s.q)}</h1>${s.help?`<p class="help">${esc(s.help)}</p>`:''}</div>`));
+      if(s.type==='text'||s.type==='textarea'){
+        const inp = el(s.type==='text' ? `<input type="text" id="f-${s.id}" placeholder="${esc(s.ph||'')}">` : `<textarea id="f-${s.id}" placeholder="${esc(s.ph||'')}"></textarea>`);
+        inp.value = s.get()||''; inp.oninput = ()=>{ s.set(inp.value); save(); };
+        if(s.type==='text') inp.addEventListener('keydown', e=>{ if(e.key==='Enter'){ e.preventDefault(); go(1); } });
+        q.appendChild(inp); setTimeout(()=>inp.focus(),0);
+      }
+      else if(s.type==='sector'){
+        const list = el('<div class="choices" role="radiogroup"></div>');
+        SECTORS.forEach(([k,t,d])=>{ const c=el(`<div class="choice${A.start.sector===k?' sel':''}" tabindex="0" role="radio" aria-checked="${A.start.sector===k}"><div class="k">${k}</div><div><b>${esc(t)}</b><span>${esc(d)}</span></div></div>`);
+          const pick=()=>{ A.start.sector=k; A.defaults={light_or_dark:'default',density:'default',imagery_mode:'default'}; save(); render(); };
+          c.onclick=pick; c.onkeydown=e=>{ if(e.key==='Enter'||e.key===' '){ e.preventDefault(); pick(); } }; list.appendChild(c); });
+        q.appendChild(list);
+      }
+      else if(s.type==='logo'){
+        const box = el(`<div><label class="lbl">Logo file or link</label><input type="text" id="f-logo" placeholder="Path or URL, or leave empty if there is no logo yet"><label class="lbl">Locked?</label><div class="pair" id="lk"><button type="button" data-v="1">Locked, never change it</button><button type="button" data-v="0">We may redraw it</button></div></div>`);
+        const inp=box.querySelector('#f-logo'); inp.value=A.brand.logo_file||''; inp.oninput=()=>{A.brand.logo_file=inp.value; save();};
+        const btns=box.querySelectorAll('#lk button'); const paint=()=>btns.forEach(b=>b.classList.toggle('sel', (b.dataset.v==='1')===!!A.brand.logo_locked));
+        btns.forEach(b=>b.onclick=()=>{A.brand.logo_locked=b.dataset.v==='1'; save(); paint();}); paint(); q.appendChild(box);
+      }
+      else if(s.type==='refs'){
+        const box=el('<div></div>'); const arr=A.brand[s.key];
+        arr.forEach((r,idx)=>{ const row=el(`<div class="row" style="margin-bottom:10px"><input type="text" placeholder="https://" aria-label="URL ${idx+1}"><input type="text" placeholder="one word: why" aria-label="Why ${idx+1}"></div>`);
+          const [u,w]=row.querySelectorAll('input'); u.value=r[0]||''; w.value=r[1]||''; u.oninput=()=>{r[0]=u.value; save();}; w.oninput=()=>{r[1]=w.value; save();}; box.appendChild(row); });
+        q.appendChild(box);
+      }
+      else if(s.type==='tags2'){
+        const [ka,la]=s.a,[kb,lb]=s.b; const box=el('<div></div>');
+        box.appendChild(el(`<label class="lbl">${esc(la)}</label>`)); box.appendChild(tagsUI(A.brand[ka], '', save));
+        box.appendChild(el(`<label class="lbl">${esc(lb)}</label>`)); box.appendChild(tagsUI(A.brand[kb], '', save));
+        q.appendChild(box);
+      }
+      else if(s.type==='tags1'){
+        const root = s.root ? A[s.root] : A.brand; q.appendChild(tagsUI(root[s.key], s.ph||'', save));
+      }
+      else if(s.type==='yesno'){
+        const p=el(`<div class="pair"><button type="button" data-v="1">${esc(s.yes)}</button><button type="button" data-v="0">${esc(s.no)}</button></div>`);
+        const btns=p.querySelectorAll('button'); const paint=()=>btns.forEach(b=>b.classList.toggle('sel',(b.dataset.v==='1')===!!s.get()));
+        btns.forEach(b=>b.onclick=()=>{s.set(b.dataset.v==='1'); save(); paint();}); paint(); q.appendChild(p);
+      }
+      else if(s.type==='products'){
+        const box=el('<div class="rows"></div>');
+        const draw=()=>{ box.innerHTML=''; A.catalogue.products.forEach((p,idx)=>{ const r=el(`<div class="r"><input type="text" placeholder="Product name" aria-label="Name"><input type="text" placeholder="Variant, e.g. 5 mg" aria-label="Variant"><input type="text" placeholder="Price" aria-label="Price"><button type="button" aria-label="Remove">×</button></div>`);
+          const [a,b,c]=r.querySelectorAll('input'); a.value=p[0]; b.value=p[1]; c.value=p[2]; a.oninput=()=>{p[0]=a.value;save();}; b.oninput=()=>{p[1]=b.value;save();}; c.oninput=()=>{p[2]=c.value;save();};
+          r.querySelector('button').onclick=()=>{A.catalogue.products.splice(idx,1); save(); draw();}; box.appendChild(r); }); };
+        draw(); q.appendChild(box);
+        const addb=el('<div class="mini"><button type="button">Add a product</button><span class="hint">Currency: GBP</span></div>'); addb.querySelector('button').onclick=()=>{A.catalogue.products.push(['','','']); save(); draw();}; q.appendChild(addb);
+      }
+      else if(s.type==='people'){
+        const box=el('<div class="row"><div><label class="lbl">Approves designs</label><input type="text" id="f-app"></div><div><label class="lbl">Handles dispatch</label><input type="text" id="f-dis"></div></div>');
+        const a=box.querySelector('#f-app'), d=box.querySelector('#f-dis'); a.value=A.protect.approver; d.value=A.protect.dispatcher; a.oninput=()=>{A.protect.approver=a.value;save();}; d.oninput=()=>{A.protect.dispatcher=d.value;save();}; q.appendChild(box);
+      }
+      q.appendChild(err);
+    }
+
+    const act = document.getElementById('actions'); act.innerHTML='';
+    act.appendChild(showBack ? el('<button class="btn ghost" type="button" id="back">Back</button>') : el('<span></span>'));
+    if(next){ act.appendChild(el(`<div style="display:flex;gap:14px;align-items:center"><span class="hint">${s.kind?'':'Enter to continue'}</span><button class="btn" type="button" id="next">${next}</button></div>`)); }
+    const b=document.getElementById('back'); if(b) b.onclick=()=>go(-1);
+    const nx=document.getElementById('next'); if(nx) nx.onclick=()=>go(1);
+
+    function go(dir){
+      if(dir>0 && validate(s, err)) return;
+      let j=i+dir; while(j>=0 && j<steps.length && !visible(steps[j])) j+=dir;
+      if(j<0||j>=steps.length) return; i=j; save(); window.scrollTo({top:0}); render();
+    }
+  }
+  function validate(s, err){
+    let msg='';
+    if(s.req && s.get && !String(s.get()||'').trim()) msg='This one is needed.';
+    if(s.type==='sector' && !A.start.sector) msg='Pick the closest sector.';
+    if(s.type==='refs'){ const n=A.brand[s.key].filter(r=>r[0].trim()).length; if(n<1) msg='At least one site, ideally three.'; }
+    if(s.type==='products'){ const n=A.catalogue.products.filter(p=>p[0].trim()&&p[2].trim()).length; if(n<3) msg='At least three products with prices; six is better.'; }
+    err.textContent=msg; err.hidden=!msg; return !!msg;
+  }
+
+  // ---------- yaml ----------
+  function yq(v){ v=String(v==null?'':v); return '"'+v.replace(/\\/g,'\\\\').replace(/"/g,'\\"')+'"'; }
+  function ylist(arr, ind){ if(!arr||!arr.length) return ' []\n'; return '\n'+arr.map(v=>`${ind}- ${yq(v)}`).join('\n')+'\n'; }
+  function yaml(){
+    const d=SECTOR_DEFAULTS[A.start.sector]||SECTOR_DEFAULTS.A;
+    const regions = A.start.regions.split(/[;\n]/).map(x=>x.trim()).filter(Boolean).map(x=>{ const m=x.match(/^(.*?),\s*([A-Z]{3})$/); return m?[m[1],m[2]]:[x,'']; });
+    const refs = (arr)=>arr.filter(r=>r[0].trim()).map(r=>`    - { url: ${yq(r[0])}, why: ${yq(r[1])} }`).join('\n')||'    []';
+    const prods = A.catalogue.products.filter(p=>p[0].trim()).map(p=>`        - { name: ${yq(p[0])}, variant: ${yq(p[1])}, price: ${yq(p[2])} }`).join('\n');
+    return `# Masthead wizard answers — generated ${A.meta.created} by the web wizard v0.2
+meta:
+  slug: ${yq(A.meta.slug)}
+  created: ${yq(A.meta.created)}
+  wizard_version: 0.2
+  blind_test: ${A.meta.blind_test}
+  attribution: founder
+
+start:
+  sells: ${yq(A.start.sells)}
+  sector: ${yq(A.start.sector)}
+  regions:
+${regions.map(r=>`    - { country: ${yq(r[0])}, currency: ${yq(r[1])} }`).join('\n')||'    []'}
+  replacing_site: ${yq(A.start.replacing_site)}
+  goal_6_months: ${yq(A.start.goal_6_months)}
+
+brand:
+  name: ${yq(A.brand.name)}
+  wordmark_exact: ${yq(A.brand.wordmark_exact)}
+  logo_file: ${yq(A.brand.logo_file)}
+  logo_locked: ${!!A.brand.logo_locked}
+  references_admire:
+${refs(A.brand.admire)}
+  references_dislike:
+${refs(A.brand.dislike)}
+  colours_must:${ylist(A.brand.colours_must,'    ')}  colours_never:${ylist(A.brand.colours_never,'    ')}  words_never_site:${ylist(A.brand.words_never_site,'    ')}  words_never_titles:${ylist(A.brand.words_never_titles,'    ')}  light_or_dark: ${yq(A.defaults.light_or_dark==='default'?'default':A.defaults.light_or_dark)}   # sector default: ${d.light}
+  imagery_mode: ${yq(A.defaults.imagery_mode==='default'?'default':A.defaults.imagery_mode)}   # sector default: ${d.imagery}
+  density: ${yq(A.defaults.density==='default'?'default':A.defaults.density)}   # sector default: ${d.density}
+  imagery_now: ${!!A.brand.imagery_now}
+  tone_like:${ylist(A.brand.tone_like,'    ')}  tone_never:${ylist(A.brand.tone_never,'    ')}  must_differ_from:${ylist(A.brand.must_differ_from,'    ')}
+catalogue:
+  currency: "GBP"
+  delivery_promise: ${yq(A.catalogue.delivery_promise)}
+  trust_facts:${ylist(A.catalogue.trust_facts,'    ')}  groups:
+    - name: "Catalogue"
+      products:
+${prods||'        []'}
+
+protect:
+  locked_regions:${ylist(A.protect.locked_regions,'    ')}  approver: ${yq(A.protect.approver)}
+  dispatcher: ${yq(A.protect.dispatcher)}
+  password_until_real_imagery: ${!!A.protect.password_until_real_imagery}
+  never_do:${ylist(A.protect.never_do,'    ')}`;
+  }
+
+  render();
+})();
+</script>
+
+</body>
+</html>
