@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { client } from "@/lib/claude";
+import { client, structured } from "@/lib/claude";
 import { planSystem, buildSystem, fixPrompt, type DirectionSpec, type Palette } from "@/lib/prompts";
 import { gate, type GateReport } from "@/lib/gate";
 import { missingRequired, type Brief } from "@/lib/brief";
@@ -46,14 +46,11 @@ export async function POST(req: Request) {
     const c = client();
 
     // 1. Plan
-    const plan = await c.messages.create({
-      model, max_tokens: 1500, system: planSystem(brief),
-      messages: [{ role: "user", content: "Plan the three directions and the palette now." }],
-      tools: [PLAN_TOOL], tool_choice: { type: "tool", name: "plan" },
+    const { data: planned, usage } = await structured<{ palette: Palette; directions: DirectionSpec[] }>(c, {
+      model, system: planSystem(brief), messages: [{ role: "user", content: "Plan the three directions and the palette now." }], tool: PLAN_TOOL, maxTokens: 1500,
     });
-    const pb = plan.content.find((b) => b.type === "tool_use");
-    if (!pb || pb.type !== "tool_use") return NextResponse.json({ error: "No plan from the model." }, { status: 502 });
-    const { palette, directions: specs } = pb.input as { palette: Palette; directions: DirectionSpec[] };
+    const { palette, directions: specs } = planned;
+    if (!specs || specs.length !== 3) return NextResponse.json({ error: "The plan did not contain three directions. Try again or pick another build model." }, { status: 502 });
 
     // 2. Build three in parallel, gate, one fix pass each if needed
     const build = async (spec: DirectionSpec): Promise<Direction> => {
@@ -73,7 +70,7 @@ export async function POST(req: Request) {
       return { ...spec, html, gate: report, attempts };
     };
     const directions = await Promise.all(specs.map(build));
-    return NextResponse.json({ palette, directions, usage: plan.usage });
+    return NextResponse.json({ palette, directions, usage });
   } catch (e) {
     return NextResponse.json({ error: (e as Error).message }, { status: 500 });
   }

@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { client } from "@/lib/claude";
+import { client, structured } from "@/lib/claude";
 import { converseSystem } from "@/lib/prompts";
 import { applyPatch, missingRequired, type Brief } from "@/lib/brief";
 
@@ -32,23 +32,15 @@ export async function POST(req: Request) {
     const history: Msg[] = (messages || []).slice(-24);
     if (!history.length || history[history.length - 1].role !== "user") history.push({ role: "user", content: "(The owner has opened the studio. Ask the first unanswered question.)" });
 
-    const res = await c.messages.create({
-      model,
-      max_tokens: 1200,
-      system: converseSystem(brief),
-      messages: history,
-      tools: [RESPOND_TOOL],
-      tool_choice: { type: "tool", name: "respond" },
+    const { data: out, usage } = await structured<{ say: string; patch: Record<string, unknown>; suggestions: string[]; asking: string; complete: boolean }>(c, {
+      model, system: converseSystem(brief), messages: history, tool: RESPOND_TOOL, maxTokens: 1200,
     });
-    const block = res.content.find((b) => b.type === "tool_use");
-    if (!block || block.type !== "tool_use") return NextResponse.json({ error: "No structured reply from the model." }, { status: 502 });
-    const out = block.input as { say: string; patch: Record<string, unknown>; suggestions: string[]; asking: string; complete: boolean };
     const next = applyPatch(brief, out.patch || {});
     const complete = missingRequired(next).length === 0;
     return NextResponse.json({
       say: out.say, patch: out.patch || {}, suggestions: out.suggestions || [], asking: out.asking || "", complete,
       brief: next,
-      usage: res.usage,
+      usage,
     });
   } catch (e) {
     return NextResponse.json({ error: (e as Error).message }, { status: 500 });
