@@ -25,29 +25,55 @@ export const PREFER_BUILD = ["opus-5", "opus-4", "opus", "sonnet-5", "sonnet"];
 type ToolDef = { name: string; description: string; input_schema: Record<string, unknown> };
 type Msg = { role: "user" | "assistant"; content: string };
 
+function textOf(res: Anthropic.Message): string {
+  return res.content.filter((b) => b.type === "text").map((b) => (b.type === "text" ? b.text : "")).join("");
+}
+function parseJsonLoose(text: string): unknown {
+  const fenced = text.match(/```(?:json)?\s*([\s\S]*?)```/i);
+  const body = fenced ? fenced[1] : text;
+  const i = body.indexOf("{"); const j = body.lastIndexOf("}");
+  if (i < 0 || j <= i) return null;
+  try { return JSON.parse(body.slice(i, j + 1)); } catch { return null; }
+}
+
 /**
- * Get a structured answer from the model. Tries a forced tool call first; if the model
- * does not support forced tool_choice, retries with auto and a strong instruction, and
- * finally falls back to parsing a JSON object out of the text.
+ * Get a structured answer from the model.
+ * 1. Forced tool call. 2. If the model rejects forced tool_choice: auto tool choice with a strong instruction.
+ * 3. If the result fails validation: one JSON-only request with an example of the shape.
+ * Throws with a snippet of what the model said if all three fail.
  */
-export async function structured<T>(c: Anthropic, args: { model: string; system: string; messages: Msg[]; tool: ToolDef; maxTokens?: number }): Promise<{ data: T; usage: unknown }> {
-  const base = { model: args.model, max_tokens: args.maxTokens ?? 1500, messages: args.messages, tools: [args.tool as never] };
-  let res;
+export async function structured<T>(c: Anthropic, args: {
+  model: string; system: string; messages: Msg[]; tool: ToolDef; maxTokens?: number;
+  validate?: (d: unknown) => boolean; example?: string;
+}): Promise<{ data: T; usage: unknown }> {
+  const ok = args.validate ?? (() => true);
+  const base = { model: args.model, max_tokens: args.maxTokens ?? 1500, messages: args.messages };
+  let res: Anthropic.Message | null = null;
+  let lastText = "";
   try {
-    res = await c.messages.create({ ...base, system: args.system, tool_choice: { type: "tool", name: args.tool.name } });
+    res = await c.messages.create({ ...base, system: args.system, tools: [args.tool as never], tool_choice: { type: "tool", name: args.tool.name } });
   } catch (e) {
     const msg = (e as Error).message || "";
     if (!/tool_choice/i.test(msg)) throw e;
     res = await c.messages.create({
-      ...base,
-      system: args.system + `\n\nIMPORTANT: respond by calling the tool "${args.tool.name}" exactly once with the required fields. If you cannot call tools, respond with a single JSON object matching the tool's input schema and nothing else.`,
-      tool_choice: { type: "auto" },
+      ...base, tools: [args.tool as never], tool_choice: { type: "auto" },
+      system: args.system + `\n\nIMPORTANT: respond by calling the tool "${args.tool.name}" exactly once with every required field. Do not answer in prose.`,
     });
   }
   const block = res.content.find((b) => b.type === "tool_use");
-  if (block && block.type === "tool_use") return { data: block.input as T, usage: res.usage };
-  const text = res.content.filter((b) => b.type === "text").map((b) => (b.type === "text" ? b.text : "")).join("");
-  const m = text.match(/\{[\s\S]*\}/);
-  if (m) { try { return { data: JSON.parse(m[0]) as T, usage: res.usage }; } catch { /* fall through */ } }
-  throw new Error("The model did not return a structured answer. Try a different model in the header.");
+  if (block && block.type === "tool_use" && ok(block.input)) return { data: block.input as T, usage: res.usage };
+  lastText = textOf(res);
+  const loose = parseJsonLoose(lastText);
+  if (loose && ok(loose)) return { data: loose as T, usage: res.usage };
+
+  // JSON-only retry with an example of the shape
+  const schema = JSON.stringify(args.tool.input_schema);
+  const res2 = await c.messages.create({
+    ...base,
+    system: args.system + `\n\nRespond with ONE JSON object only, no prose, no markdown fences. It must match this JSON schema: ${schema}${args.example ? `\nExample of the shape: ${args.example}` : ""}`,
+  });
+  lastText = textOf(res2);
+  const loose2 = parseJsonLoose(lastText);
+  if (loose2 && ok(loose2)) return { data: loose2 as T, usage: res2.usage };
+  throw new Error(`The model did not return the expected structure. It said: "${lastText.slice(0, 240).replace(/\s+/g, " ")}". Try another build model in the header.`);
 }

@@ -47,7 +47,13 @@ export async function POST(req: Request) {
 
     // 1. Plan
     const { data: planned, usage } = await structured<{ palette: Palette; directions: DirectionSpec[] }>(c, {
-      model, system: planSystem(brief), messages: [{ role: "user", content: "Plan the three directions and the palette now." }], tool: PLAN_TOOL, maxTokens: 1500,
+      model, system: planSystem(brief), messages: [{ role: "user", content: "Plan the three directions and the palette now." }], tool: PLAN_TOOL, maxTokens: 2500,
+      validate: (d) => { const x = d as { palette?: Palette; directions?: DirectionSpec[] }; return !!x && !!x.palette && Array.isArray(x.directions) && x.directions.length === 3 && x.directions.every((s) => s && s.name && s.type && s.type.headings && s.type.body); },
+      example: JSON.stringify({ palette: { paper: "#ffffff", ink: "#14202e", panel: "#eef2f7", signature: "#1f3a63", rule: "rgba(20,32,46,.14)" }, directions: [
+        { name: "Ledger", why: "Dense catalogue with search and category bar, the shape shops in this sector convert on.", axes: { density: "catalogue", hero: "split", panels: "tinted" }, type: { headings: "Hanken Grotesk", body: "Instrument Sans" } },
+        { name: "Atlas", why: "...", axes: { density: "editorial", hero: "product-first", panels: "rules-only" }, type: { headings: "Host Grotesk", body: "Public Sans" } },
+        { name: "Lumen", why: "...", axes: { density: "catalogue", hero: "full-bleed", panels: "bordered" }, type: { headings: "Schibsted Grotesk", body: "Albert Sans" } },
+      ] }),
     });
     const { palette, directions: specs } = planned;
     if (!specs || specs.length !== 3) return NextResponse.json({ error: "The plan did not contain three directions. Try again or pick another build model." }, { status: 502 });

@@ -34,6 +34,8 @@ export async function POST(req: Request) {
 
     const { data: out, usage } = await structured<{ say: string; patch: Record<string, unknown>; suggestions: string[]; asking: string; complete: boolean }>(c, {
       model, system: converseSystem(brief), messages: history, tool: RESPOND_TOOL, maxTokens: 1200,
+      validate: (d) => typeof (d as { say?: unknown }).say === "string",
+      example: JSON.stringify({ say: "Which sector is closest?", patch: { "start.sells": "Research peptides to UK laboratories, online only" }, suggestions: ["A · Research supplies / peptides"], asking: "start.sector", complete: false }),
     });
     const next = applyPatch(brief, out.patch || {});
     const complete = missingRequired(next).length === 0;
