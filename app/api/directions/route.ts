@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { client, structured } from "@/lib/claude";
+import { client, structured, generateText } from "@/lib/claude";
 import { planSystem, buildSystem, fixPrompt, type DirectionSpec, type Palette } from "@/lib/prompts";
 import { gate, type GateReport } from "@/lib/gate";
 import { missingRequired, type Brief } from "@/lib/brief";
@@ -61,16 +61,17 @@ export async function POST(req: Request) {
     // 2. Build three in parallel, gate, one fix pass each if needed
     const build = async (spec: DirectionSpec): Promise<Direction> => {
       const system = buildSystem(brief, spec, palette, specs);
-      const first = await c.messages.create({ model, max_tokens: 16000, system, messages: [{ role: "user", content: `Build the "${spec.name}" homepage now. HTML only.` }] });
-      let html = stripFences(first.content.filter((b) => b.type === "text").map((b) => (b.type === "text" ? b.text : "")).join(""));
+      const ask = `Build the "${spec.name}" homepage now. HTML only.`;
+      const first = await generateText(c, { model, system, messages: [{ role: "user", content: ask }], maxTokens: 12000 });
+      let html = stripFences(first.text);
       let report = gate(html); let attempts = 1;
       if (!report.pass) {
-        const fix = await c.messages.create({ model, max_tokens: 16000, system, messages: [
-          { role: "user", content: `Build the "${spec.name}" homepage now. HTML only.` },
+        const fix = await generateText(c, { model, system, messages: [
+          { role: "user", content: ask },
           { role: "assistant", content: html },
           { role: "user", content: fixPrompt(report.fails) },
-        ] });
-        html = stripFences(fix.content.filter((b) => b.type === "text").map((b) => (b.type === "text" ? b.text : "")).join(""));
+        ], maxTokens: 12000 });
+        html = stripFences(fix.text);
         report = gate(html); attempts = 2;
       }
       return { ...spec, html, gate: report, attempts };

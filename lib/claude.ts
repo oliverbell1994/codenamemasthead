@@ -3,7 +3,7 @@ import Anthropic from "@anthropic-ai/sdk";
 export function client(): Anthropic {
   const key = process.env.ANTHROPIC_API_KEY;
   if (!key) throw new Error("ANTHROPIC_API_KEY is not set. Copy .env.example to .env.local and add your key.");
-  return new Anthropic({ apiKey: key });
+  return new Anthropic({ apiKey: key, timeout: 10 * 60 * 1000, maxRetries: 1 });
 }
 
 /** Model ids available to this key, newest first, with a sensible default for each job. */
@@ -76,4 +76,11 @@ export async function structured<T>(c: Anthropic, args: {
   const loose2 = parseJsonLoose(lastText);
   if (loose2 && ok(loose2)) return { data: loose2 as T, usage: res2.usage };
   throw new Error(`The model did not return the expected structure. It said: "${lastText.slice(0, 240).replace(/\s+/g, " ")}". Try another build model in the header.`);
+}
+
+/** Long generation (a full page): streamed so the connection stays alive, assembled at the end. */
+export async function generateText(c: Anthropic, args: { model: string; system: string; messages: Msg[]; maxTokens?: number }): Promise<{ text: string; usage: unknown }> {
+  const stream = c.messages.stream({ model: args.model, max_tokens: args.maxTokens ?? 12000, system: args.system, messages: args.messages });
+  const final = await stream.finalMessage();
+  return { text: textOf(final), usage: final.usage };
 }
