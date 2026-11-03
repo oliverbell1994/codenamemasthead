@@ -1,47 +1,61 @@
-# Masthead engine — Phase 0
+# Masthead
 
-Working name. A wizard-driven, house-rule-constrained site engine, run inside Claude Code. Phase 0 proves one thing: from wizard answers alone, the engine produces three homepage directions the founder would ship.
+Working name. A wizard-driven, house-rule-constrained website engine for businesses that sell. Two ways to run it live in this repo:
 
-## Setup (once, on your Mac)
+- **The studio** (`npm run dev`): a web app. A conversation that asks one thing at a time, a brief you can edit directly at any point, and a preview where three homepage directions are built, gated and shown for you to choose from.
+- **The Claude Code pipeline** (`claude` in this folder, then `/wizard`, `/brief`, `/directions`, `/gate`, `/score`): the same engine driven from the terminal, used for evals and for turning your verdicts into rules.
+
+Both read the same rules in `engine/` and the same linter lists in `tools/`.
+
+## Run the studio
 
 ```bash
-git clone <your repo url> masthead && cd masthead
-npm install && npx playwright install chromium     # for tools/screenshot.js
-python3 tools/gate.py tools/samples/slop.html       # should print 16 FAILs
-python3 tools/gate.py tools/samples/clean.html      # should PASS
-claude                                              # open Claude Code in this folder
+git clone https://github.com/oliverbell1994/codenamemasthead.git masthead && cd masthead
+npm install
+cp .env.example .env.local        # then put your Anthropic API key in it
+npm run dev                       # http://localhost:3000
 ```
 
-Python 3 (standard library only) and Node 18+ are the only requirements.
+Requirements: Node 20+ and an Anthropic API key (console.anthropic.com). The header lets you pick the model for the conversation and the model for building; defaults are chosen from what your key can see. Everything you type is kept in your browser; nothing is stored on a server yet.
 
-## The pipeline
+Cost: the conversation is cheap (fractions of a cent a turn). A set of three directions is a planning call plus three full page builds, each with one fix pass if the gate rejects it: roughly a few dollars on an Opus-class model, less on Sonnet.
+
+## How the studio works
+
+1. **Conversation** (left). The engine asks the wizard questions from `engine/skills/02-wizard-questions.md` one at a time, in order, skipping what the brief already has. It proposes the sector default as the first chip. Thin answers get one follow-up.
+2. **Brief** (middle). Every answer as an editable field, grouped by stage. Edit anything; the next question takes the change into account. Required fields are marked. YAML export matches `brands/answers.template.yaml`, so the Claude Code pipeline can read it.
+3. **Directions** (right). Once the required fields are filled, the engine plans three directions (`engine/skills/04-three-directions.md`), builds each as a complete HTML page under the house rules, runs the gate (`lib/gate.ts`, a port of `tools/gate.py`), sends failures back for one fix pass, and shows the result with the gate report. Pick one. The other two are discarded, never blended.
+
+Next build: chat-driven refinement of the chosen direction with the gate on every edit, protected regions, and saving projects server-side.
+
+## The Claude Code pipeline
+
+```bash
+npx playwright install chromium      # once, for tools/screenshot.js
+claude                               # then /wizard <slug>
+```
 
 | Command | Does | Writes |
 |---|---|---|
-| `/wizard <slug>` | asks Stages 1, 2 and 6 of the wizard | `brands/<slug>/answers.yaml` |
-| `/brief <slug>` | writes the art-direction brief from the answers and the rules | `brands/<slug>/brief.md` |
-| `/directions <slug>` | three homepage directions, gated, screenshotted | `brands/<slug>/directions/<name>/index.html`, `contact-sheet.png` |
+| `/wizard <slug>` | asks Stages 1, 2 and 6 in the terminal | `brands/<slug>/answers.yaml` |
+| `/brief <slug>` | writes the art-direction brief | `brands/<slug>/brief.md` |
+| `/directions <slug>` | three directions, gated, screenshotted | `brands/<slug>/directions/…`, `contact-sheet.png` |
 | `/gate <html…>` | the forbidden-list linter (and `--screens`) | report |
-| `/score <slug>` | records your verdicts and proposes rule changes | `brands/<slug>/scores.md`, `engine/reference/*`, proposals for `engine/skills/*` |
-
-Slugs are lowercase with hyphens. Everything for a brand lives under `brands/<slug>/`.
-
-## The first blind test
-
-1. `/wizard northlab` (or any fictional UK peptide shop; say "this is a blind test").
-2. `/brief northlab` — read the summary; correct anything wrong by replying, then re-run.
-3. `/directions northlab` — wait; open `brands/northlab/directions/contact-sheet.png` and each `index.html`.
-4. `/score northlab` — ship / close / no, with a few words each. Say whether each fault is your taste, a client's wish, or contextual.
-5. Repeat with a second fictional brief in the same sector. Two of three shipping on two consecutive briefs passes the sector.
+| `/score <slug>` | records verdicts, proposes rule changes | `brands/<slug>/scores.md`, `engine/reference/*` |
 
 ## Where the rules live
 
-`engine/skills/00-house-rules.md` and `01-sector-playbooks.md` are the taste. `engine/reference/` is the memory of what was accepted and rejected. `tools/fonts.json` and `tools/phrases.json` feed the linter. Change those files, not the commands, when a rule changes; `/score` proposes the changes for you.
+`engine/skills/00-house-rules.md` and `01-sector-playbooks.md` are the taste. `engine/reference/` is what was accepted and rejected. `tools/fonts.json` and `tools/phrases.json` feed both linters. Change those files, not the prompts, when a rule changes.
 
-## What is deliberately not here yet
+## Layout
 
-The customer-facing app, billing, hosting, the commerce backend, Stages 3–5 of the wizard, the full build. Phase 0 is directions only. The base storefront template comes after the first sector passes.
-
-## The web wizard
-
-`wizard/index.html` is the customer-facing version of Stages 1, 2, 6 and the catalogue: one question per screen, sector defaults proposed and overridable, and `answers.yaml` produced at the end to paste into `brands/<slug>/`. Open it in any browser; no server needed. Progress is kept in that browser only.
+```
+app/            Next.js app: page.tsx (studio), api/converse, api/directions, api/models
+components/     Conversation, BriefPanel, Preview
+lib/            brief.ts (schema, yaml), engine.ts (rule loader), prompts.ts, gate.ts, claude.ts
+engine/         the rules and reference library
+tools/          gate.py, screenshot.js, fonts.json, phrases.json, samples
+brands/         one folder per brand for the Claude Code pipeline
+wizard/         the earlier static one-question-per-screen wizard (kept for reference)
+.claude/        Claude Code commands
+```

@@ -1,6 +1,11 @@
 node_modules/
+.next/
+.env.local
+.env
 brands/*/directions/*/screens/
 brands/*/directions/*.png
 brands/*/directions/contact-sheet.html
 tools/samples/screens/
 .DS_Store
+*.tsbuildinfo
+next-env.d.ts

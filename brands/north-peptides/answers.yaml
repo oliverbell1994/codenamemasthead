@@ -1,0 +1,61 @@
+# Masthead wizard answers — generated 2026-11-03 by the web wizard v0.2
+meta:
+  slug: "north-peptides"
+  created: "2026-11-03"
+  wizard_version: 0.2
+  blind_test: true
+  attribution: founder
+
+start:
+  sells: "Research peptides to people in the UK. Online Only"
+  sector: "A"
+  regions:
+    - { country: "United Kingdom", currency: "GBP" }
+  replacing_site: ""
+  goal_6_months: "Page one for buy uk peptides and top peptide products "
+
+brand:
+  name: "North Peptides"
+  wordmark_exact: "North Peptides"
+  logo_file: ""
+  logo_locked: false
+  references_admire:
+    - { url: "https://buyukpeptides.com/", why: "" }
+    - { url: "https://britishpeptidelabs.com/", why: "" }
+  references_dislike:
+    - { url: "https://www.imperialpeptides.co.uk/", why: "cheap" }
+    - { url: "https://www.uk-peptides.com/", why: "cheap" }
+  colours_must: []
+  colours_never: []
+  words_never_site: []
+  words_never_titles: []
+  light_or_dark: "default"   # sector default: light
+  imagery_mode: "default"   # sector default: renders
+  density: "default"   # sector default: high
+  imagery_now: false
+  tone_like: []
+  tone_never: []
+  must_differ_from:
+    - "https://buyukpeptides.com/"
+    - "https://britishpeptidelabs.com/"
+
+catalogue:
+  currency: "GBP"
+  delivery_promise: "next day delivery, tested peptides"
+  trust_facts: []
+  groups:
+    - name: "Catalogue"
+      products:
+        - { name: "Reta", variant: "", price: "5.99" }
+        - { name: "BPC157", variant: "", price: "5.99" }
+        - { name: "gkcu", variant: "", price: "5.99" }
+
+protect:
+  locked_regions:
+    - "hero"
+    - "product page"
+    - "checkout"
+  approver: ""
+  dispatcher: ""
+  password_until_real_imagery: true
+  never_do: []
